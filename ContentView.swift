@@ -1,184 +1,201 @@
-//
-//  ContentView.swift
-//  uitest
-//
-//  Created by Vaidik Dubey on 09/12/23.
-//
-
 import SwiftUI
 
-enum NotificationPrivacySettingOption: Int, CaseIterable 
-{
-    case displayNameAndMessage = 1
-    case displayOnlyName = 2
-    case displayOnlyPlaceholder = 3
+struct OnboardingCard: Identifiable {
+    let id = UUID()
+    let title: String
+    let description: String
+    let imageName: String
+    let secondImageName: String?
+    let articleText: String
+    let hasToggle: Bool
+    let hasImagePicker: Bool
+}
+struct CustomTextView: View {
+  let text: String
+
+  var body: some View {
+    Text(text)
+      .font(.custom("GeezaPro", size: 20))
+      .foregroundColor(.black)
+  }
 }
 
-class AppStorageModel: ObservableObject 
-{
-   
-    @AppStorage("OMEMODefaultOn")  var oMEMODefaultOn = false
-    @AppStorage("AutodeleteAllMessagesAfter3Days")  var autodeleteAllMessagesAfter3Days = false
-    
-    @AppStorage("SendLastUserInteraction")  var sendLastUserInteraction = false
-    @AppStorage("SendLastChatState")  var sendLastChatState = false
-    @AppStorage("SendReceivedMarkers")  var sendReceivedMarkers = false
-    @AppStorage("SendDisplayedMarkers")  var sendDisplayedMarkers = false
-    
-    @AppStorage("ShowGeoLocation") var showGeoLocation = false
-    @AppStorage("ShowURLPreview")  var showURLPreview = false
-    
-    @AppStorage("webrtcAllowP2P")  var webrtcAllowP2P = false
-    @AppStorage("webrtcUseFallbackTurn")  var webrtcUseFallbackTurn = false
-    @AppStorage("allowVersionIQ")  var allowVersionIQ = false
-    @AppStorage("allowNonRosterContacts")  var allowNonRosterContacts = false
+struct OnboardingView: View {
+    let cards: [OnboardingCard] = [
+        OnboardingCard(title: "Welcome to Monal !",
+                       description: "Privacy like its 1999 🔒",
+                       imageName: "hand.wave",
+                       secondImageName: "person.crop.circle.fill", // Add second image name here
+                       articleText: """
+                       Modern iOS and MacOS XMPP chat client.
+                       
+                       """,
+                       
+                       hasToggle: false,
+                       hasImagePicker: false),
+        OnboardingCard(title: "Features",
+                       description: "Here’s a quick look at what you can expect:",
+                       imageName: "sparkles",
+                       secondImageName: nil, // No second image for this card
+                       articleText: """
+                        • 🔐 OMEMO Encryption : Secure multi-end messaging using the OMEMO protocol..
+                        
+                        • 🛜 Decentralized Network : Leverages the decentralized nature of XMPP, avoiding central servers.
 
-}
+                        • 🌐 Data privacy : We do not sell or track information for external parties (nor for anyone else).
+                        
+                        • 👨‍💻 Open Source : The app’s source code is publicly available for audit and contribution.
+                        
+                        """,
+                       hasToggle: false,
+                       hasImagePicker: false),
+        OnboardingCard(title: "Get Started",
+                       description: "Some important settings -",
+                       imageName: "rocket",
+                       secondImageName: nil, // No second image for this card
+                       articleText: "Insert stuff here.",
+                       hasToggle: true,
+                       hasImagePicker: true)
+    ]
+    
+    @State private var currentIndex = 0
+    @State private var toggleStates: [Bool] = [false, false, false]
+    @State private var selectedImage: UIImage?
+    
+    var body: some View {
+        VStack {
+            TabView(selection: $currentIndex) {
+                ForEach(cards.indices, id: \.self) { index in
+                    ScrollView {
+                        VStack(alignment: .leading, spacing: 16) {
+                            HStack {
+                                Image(systemName: cards[index].imageName)
+                                    .font(.custom("MarkerFelt-Wide", size: 80))
+                                    .foregroundColor(.blue)
+                                    .padding()
+                                Spacer()
+                                
+                                
+                                if let secondImageName = cards[index].secondImageName {
+                                    Image(systemName: secondImageName)
+                                        .font(.system(size: 60))
+                                        .foregroundColor(.blue)
+                                        .padding()
+                                        
+                                }
+                            }
+                            Text(cards[index].title)
+                                            .font(.title)
+                                            .fontWeight(.bold)
+                            
 
-struct ContentView: View 
-{
-    @AppStorage("NotificationPrivacySetting") private var notificationPrivacySetting: NotificationPrivacySettingOption = .displayNameAndMessage
-    
-    
-   
-    var body: some View 
-    {
-        NavigationView {
-            Form {
-                Section(header: Text("Notification Settings")) 
-                {
-                    Picker("Notification Privacy Setting", selection: $notificationPrivacySetting) {
-                        Text("Display Name And Message").tag(NotificationPrivacySettingOption.displayNameAndMessage)
-                        Text("Display Only Name").tag(NotificationPrivacySettingOption.displayOnlyName)
-                        Text("Display Only Placeholder").tag(NotificationPrivacySettingOption.displayOnlyPlaceholder)
-                    }
-                    
-                    NavigationLink(destination: firstscreen(appStorageModel: AppStorageModel()))
-                    {
-                        Text("Privacy & Security")
-                        
-                    }
-                    NavigationLink(destination: secondscreen(appStorageModel: AppStorageModel()))
-                    {
-                        Text("Interactions settings")
-                        
-                    }
-                    NavigationLink(destination: thirdscreen(appStorageModel: AppStorageModel()))
-                    {
-                        Text("Location & Sharing")
-                        
-                    }
-                    NavigationLink(destination: fourthscreen(appStorageModel: AppStorageModel()))
-                    {
-                        Text("Communications")
-                        
+                            CustomTextView(text: cards[index].description)
+                                            .multilineTextAlignment(.leading)
+                                            .bold()
+                            
+                            Divider()
+                            
+                            CustomTextView(text: cards[index].articleText)
+                                           .multilineTextAlignment(.leading)
+                                           
+                            
+                            if cards[index].hasToggle {
+                                Toggle("Enable Notifications", isOn: $toggleStates[index])
+                                    .padding()
+                            }
+                            
+                            if cards[index].hasImagePicker {
+                                ImagePicker(selectedImage: $selectedImage)
+                                    .padding()
+                            }
+                        }
+                        .padding()
                     }
                 }
             }
-            .navigationTitle("Privacy Settings")
-            .onAppear {
-                UserDefaults.standard.set(true, forKey: "HasSeenPrivacySettings")
+            .tabViewStyle(PageTabViewStyle())
+            .indexViewStyle(PageIndexViewStyle(backgroundDisplayMode: .always))
+            .background(Color(red: 0.9, green: 0.95, blue: 1.0))
+            .frame(width: 350, height: 650)
+            .background(Color.white)
+            .cornerRadius(10)
+            .shadow(color: Color.black.opacity(0.2), radius: 5, x: 3, y: 3)
+            
+            HStack {
+                Button(action: {
+                    if currentIndex > 0 {
+                        currentIndex -= 1
+                    }
+                }) {
+                    Text("Back")
+                        .foregroundColor(.blue)
+                        .padding()
+                        .background(Color.white)
+                        .cornerRadius(8)
+                        .shadow(color: Color.black.opacity(0.2), radius: 5, x: 3, y: 3)
+                }
+                
+                Spacer()
+                
+                Button(action: {
+                    if currentIndex < cards.count - 1 {
+                        currentIndex += 1
+                    }
+                }) {
+                    Text("Next")
+                        .foregroundColor(.blue)
+                        .padding()
+                        .background(Color.white)
+                        .cornerRadius(8)
+                        .shadow(color: Color.black.opacity(0.2), radius: 5, x: 3, y: 3)
+                }
             }
+            .padding()
         }
+    }
+}
+
+struct ImagePicker: UIViewControllerRepresentable {
+    @Binding var selectedImage: UIImage?
+    
+    func makeUIViewController(context: Context) -> UIImagePickerController {
+        let imagePicker = UIImagePickerController()
+        imagePicker.delegate = context.coordinator
+        imagePicker.allowsEditing = false
+        return imagePicker
     }
     
-    private func getNotificationPrivacyOption(_ option: NotificationPrivacySettingOption) -> String 
-    {
-        switch option 
-        {
-        case .displayNameAndMessage:
-            return NSLocalizedString("Display name And Message", comment: "")
-        case .displayOnlyName:
-            return NSLocalizedString("Display Only Name", comment: "")
-        case .displayOnlyPlaceholder:
-            return NSLocalizedString("Display Only Placeholder", comment: "")
-        }
+    func updateUIViewController(_ uiViewController: UIImagePickerController, context: Context) {
+        // No updates needed
     }
-}
-
-struct firstscreen: View
-{
-    @ObservedObject var appStorageModel: AppStorageModel
-         var body: some View
-    {
-        Form
-        {
-            Section(header: Text("Privacy & security"))
-            {
-                Toggle("Enable encryption by default for new chats", isOn:$appStorageModel.oMEMODefaultOn)
-                Toggle("Autodelete all messages after 3 days", isOn: $appStorageModel.autodeleteAllMessagesAfter3Days)
-                
-            }
-        }
-    }
-}
-
-struct secondscreen: View
-{
-    @ObservedObject var appStorageModel: AppStorageModel
-   
-    var body: some View
-    {
-        Form
-        {
-            
-            Section(header: Text("Interaction Settings"))
-            {
-                Toggle("Send Last Interaction Time", isOn: $appStorageModel.sendLastUserInteraction)
-                Toggle("Send Typing Notifications", isOn: $appStorageModel.sendLastChatState)
-                Toggle("Send message received state", isOn: $appStorageModel.sendReceivedMarkers)
-                Toggle("Sync Read-Markers", isOn: $appStorageModel.sendDisplayedMarkers)
-                
-            }
-            
-        }
-    }
-}
-
-struct thirdscreen: View{
-    @ObservedObject var appStorageModel: AppStorageModel
     
-    var body: some View{
-        Form{
-            
-            Section(header: Text("Location & Sharing")){
-                Toggle("Show Inline Geo Location", isOn: $appStorageModel.showGeoLocation)
-                
-                Toggle("Show URL previews", isOn: $appStorageModel.showURLPreview)
-                
-            }
-            
-        }
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self)
     }
-}
-
-
-struct fourthscreen: View{
-    @ObservedObject var appStorageModel: AppStorageModel
     
-    var body: some View{
-       Form{
-            
-            Section(header: Text("Communication")){
-                Toggle("Calls: Allow P2P sessions", isOn: $appStorageModel.webrtcAllowP2P)
-                Toggle("Calls: Allow TURN fallback to Monal-Servers", isOn: $appStorageModel.webrtcUseFallbackTurn)
-                Toggle("Allow approved contacts to query my Monal and iOS version", isOn: $appStorageModel.allowVersionIQ)
-               
-                Toggle("Allow contacts not in my Contact list to contact me", isOn: $appStorageModel.allowNonRosterContacts)
-            
-                
+    class Coordinator: NSObject, UINavigationControllerDelegate, UIImagePickerControllerDelegate {
+        let parent: ImagePicker
+        
+        init(_ parent: ImagePicker) {
+            self.parent = parent
+        }
+        
+        func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+            if let image = info[.originalImage] as? UIImage {
+                parent.selectedImage = image
             }
             
+            picker.dismiss(animated: true)
+        }
+        
+        func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+            picker.dismiss(animated: true)
         }
     }
 }
 
-
-
-struct ContentView_Previews: PreviewProvider 
-{
-    static var previews: some View
-    {
-        ContentView()
+struct OnboardingView_Previews: PreviewProvider {
+    static var previews: some View {
+        OnboardingView()
     }
 }

@@ -2,8 +2,8 @@
 //  uitestApp.swift
 //  uitest
 //
-//  Created by Vaidik Dubey on 09/12/23.
-// comment test
+//  Created by Vaidik Dubey on 02/05/24.
+//
 
 import SwiftUI
 
@@ -11,7 +11,7 @@ import SwiftUI
 struct uitestApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            OnboardingView()
         }
     }
 }
