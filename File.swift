@@ -112,6 +112,13 @@ struct AccountsEdit : View{
     var body: some View {
         NavigationView {
             Form{
+                //if onboardingActive {
+                                Section(header: Text("Settings you should check out")) {
+                                    Text("These are important privacy settings you may want to review.")
+//                                        .font(.footnote)
+                                        .foregroundColor(.secondary)
+                                }
+                      //      }
                 HStack{
                     Spacer()
                     VStack {

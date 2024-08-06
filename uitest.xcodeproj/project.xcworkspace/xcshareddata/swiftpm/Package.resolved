@@ -1,0 +1,15 @@
+{
+  "originHash" : "7ef9d046021f1ed7b6568a405b4b2862012e451eae7b609e1432c8fc9920e1c8",
+  "pins" : [
+    {
+      "identity" : "frameup",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/ryanlintott/FrameUp",
+      "state" : {
+        "revision" : "42254f19f2500050a67e73a9d5b2d0914289a7e9",
+        "version" : "0.8.0"
+      }
+    }
+  ],
+  "version" : 3
+}

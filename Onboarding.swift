@@ -1,83 +1,183 @@
-//import SwiftUI
 //
-//struct OnboardingCard: Identifiable {
-//    let id = UUID()
-//    let title: String
-//    let description: String
-//}
+//  BoardingCards.swift
+//  Monal
 //
-//struct OnboardingView: View {
-//    let cards: [OnboardingCard] = [
-//        OnboardingCard(title: "Welcome", description: "This is the first card in the onboarding experience."),
-//        OnboardingCard(title: "Features", description: "This card showcases some key features of the app. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed auctor, magna a ullamcorper congue, magna nunc euismod magna, id volutpat libero enim sed tellus."),
-//        OnboardingCard(title: "Get Started", description: "This is the final card. You're now ready to get started!")
-//    ]
-//    
-//    @State private var currentIndex = 0
-//    
-//    var body: some View {
-//        VStack {
-//            TabView(selection: $currentIndex) {
-//                ForEach(cards.indices, id: \.self) { index in
-//                    VStack {
-//                        ScrollView {
-//                            VStack(alignment: .leading, spacing: 16) {
-//                                Text(cards[index].title)
-//                                    .font(.title)
-//                                    .fontWeight(.bold)
-//                                
-//                                Text(cards[index].description)
-//                                    .multilineTextAlignment(.leading)
-//                            }
-//                            .padding()
-//                        }
-//                    }
-//                    .frame(width:370 ,height: 650) // Set a fixed height for the cards
-//                    .background(Color.white)
-//                    .cornerRadius(10)
-//                    .shadow(color: Color.black.opacity(0.2), radius: 5, x: 3, y: 3)
-//                }
-//            }
-//            .tabViewStyle(PageTabViewStyle())
-//            .indexViewStyle(PageIndexViewStyle(backgroundDisplayMode: .always))
-//            .background(Color(red: 0.9, green: 0.95, blue: 1.0))
-//            
-//            HStack {
-//                Button(action: {
-//                    if currentIndex > 0 {
-//                        currentIndex -= 1
-//                    }
-//                }) {
-//                    Text("Back")
-//                        .foregroundColor(.blue)
-//                        .padding()
-//                        .background(Color.white)
-//                        .cornerRadius(8)
-//                        .shadow(color: Color.black.opacity(0.2), radius: 4, x: 3, y: 3)
-//                }
-//                
-//                Spacer()
-//                
-//                Button(action: {
-//                    if currentIndex < cards.count - 1 {
-//                        currentIndex += 1
-//                    }
-//                }) {
-//                    Text("Next")
-//                        .foregroundColor(.blue)
-//                        .padding()
-//                        .background(Color.white)
-//                        .cornerRadius(8)
-//                        .shadow(color: Color.black.opacity(0.2), radius: 5, x: 3, y: 3)
-//                }
-//            }
-//            .padding()
-//        }
-//    }
-//}
+//  Created by Vaidik Dubey on 05/06/24.
+//  Copyright © 2024 monal-im.org. All rights reserved.
 //
-//struct OnboardingView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        OnboardingView()
-//    }
+
+import SwiftUI
+
+//class OnboardingState: ObservableObject {
+//    @defaultsDB("hasCompletedOnboarding")
+//    var hasCompletedOnboarding: Bool
 //}
+
+struct OnboardingCard: Identifiable {
+    let id = UUID()
+    let title: Text?
+    let description: Text?
+    let imageName: String?
+    let articleText: Text?
+    let customView: AnyView?
+}
+
+struct OnboardingView: View {
+    
+//    @ObservedObject var onboardingState = OnboardingState()
+//    var delegate: SheetDismisserProtocol
+    
+    let cards: [OnboardingCard] = [
+        OnboardingCard(
+            title: Text("Welcome to Monal !"),
+            description: Text("Privacy like its 1999 🔒"),
+            imageName: "hand.wave",
+            articleText: Text("""
+            Modern iOS and MacOS XMPP chat client.
+            """),
+            customView: nil
+        ),
+        OnboardingCard(
+            title: Text("Features"),
+            description: Text("Here's a quick look at what you can expect:"),
+            imageName: "sparkles",
+            articleText: Text("""
+            • 🔐 OMEMO Encryption : Secure multi-end messaging using the OMEMO protocol..
+            
+            • 🛜 Decentralized Network : Leverages the decentralized nature of XMPP, avoiding central servers.
+            
+            • 🌐 Data privacy : We do not sell or track information for external parties (nor for anyone else).
+            
+            • 👨‍💻 Open Source : The app's source code is publicly available for audit and contribution.
+            """),
+            customView: nil
+        ),
+        OnboardingCard(
+            title: nil,
+            description: nil,
+            imageName: nil,
+            articleText: nil,
+            customView: AnyView(AccountsEdit())
+        )
+    ]
+    
+    @State private var currentIndex = 0
+    
+    var body: some View {
+        VStack {
+            TabView(selection: $currentIndex) {
+                ForEach(cards.indices, id: \.self) { index in
+                    ScrollView {
+                        VStack(alignment: .leading, spacing: 16) {
+                            
+                            HStack {
+                                if currentIndex > 0 {
+                                    Button(action: {
+                                        currentIndex -= 1
+                                    }) {
+                                        Image(systemName: "chevron.left")
+                                            .foregroundColor(.blue)
+                                    }
+                                }
+                            }
+                            
+                            if let imageName = cards[index].imageName {
+                                HStack {
+                                    Image(systemName: imageName)
+                                        .font(.custom("MarkerFelt-Wide", size: 80))
+                                        .foregroundColor(.blue)
+                                }
+                            }
+                            
+                            VStack {
+                                if let title = cards[index].title {
+                                    title
+                                        .font(.title)
+                                        .fontWeight(.bold)
+                                        .foregroundColor(.primary)
+                                        .padding(.bottom, 4)
+                                }
+                                
+                                if let description = cards[index].description {
+                                    description
+                                        .font(.custom("HelveticaNeue-Medium", size: 20))
+                                        .foregroundColor(.primary)
+                                        .multilineTextAlignment(.leading)
+                                    Divider()
+                                }
+                            }
+                            
+                            if let articleText = cards[index].articleText {
+                                articleText
+                                    .font(.custom("HelveticaNeue-Medium", size: 20))
+                                    .foregroundColor(.primary)
+                                    .multilineTextAlignment(.leading)
+                            }
+                            
+                            if let view = cards[index].customView {
+                                view
+                                    .frame(minWidth: 350, maxWidth: .infinity, minHeight: 600, maxHeight: .infinity)
+                            }
+                            
+                            HStack {
+                                Spacer()
+                                if index < cards.count - 1 {
+                                    Button(action: {
+                                        currentIndex += 1
+                                    }) {
+                                        HStack {
+                                            Text("Next")
+                                                .fontWeight(.bold)
+                                            Image(systemName: "chevron.right")
+                                        }
+                                        .foregroundColor(.blue)
+                                    }
+                                }
+                                Spacer()
+                            }
+                            
+                            HStack {
+                                Spacer()
+                                if index == cards.count - 1 {
+                                    Button(action: {
+                                       // delegate.dismiss()
+                                       // onboardingState.hasCompletedOnboarding = true
+                                    }) {
+                                        Text("Close")
+                                            .fontWeight(.bold)
+                                            .padding()
+                                            .background(Color.blue)
+                                            .foregroundColor(.white)
+                                            .cornerRadius(10)
+                                    }
+                                }
+                                Spacer()
+                            }
+                        }
+                        .padding()
+                    }
+                    .background(Color(UIColor.systemBackground))
+                    .cornerRadius(10)
+                    .shadow(color: Color.gray.opacity(0.3), radius: 10)
+                    .padding(.horizontal, 3)
+                    .padding(.vertical, 5)
+                }
+            }
+            .tabViewStyle(PageTabViewStyle())
+            .indexViewStyle(PageIndexViewStyle(backgroundDisplayMode: .always))
+            .frame(width: 350, height: 770)
+            .padding()
+        }
+        .background(Color.clear)
+    }
+}
+
+struct OnboardingView_Previews: PreviewProvider {
+    //static var delegate = SheetDismisserProtocol()
+    static var previews: some View {
+        OnboardingView()
+            //.environmentObject(OnboardingState())
+    }
+}
+
+
